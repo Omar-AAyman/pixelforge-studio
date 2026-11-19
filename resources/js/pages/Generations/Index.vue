@@ -7,6 +7,7 @@ defineProps<{
         ulid: string;
         prompt: string;
         status: string;
+        error_message: string | null;
         est_charge_min_nanos: number;
         est_charge_max_nanos: number;
     }[];
@@ -31,6 +32,9 @@ defineProps<{
         >
             <p class="font-medium break-words">{{ generation.prompt }}</p>
             <p class="text-sm">Status: {{ generation.status }}</p>
+            <p v-if="generation.error_message" class="text-sm text-destructive">
+                {{ generation.error_message }}
+            </p>
             <p class="text-sm text-muted-foreground">
                 Estimated charge:
                 {{ formatNanos(generation.est_charge_min_nanos) }} –

@@ -1,11 +1,14 @@
 <?php
 
+use App\Jobs\SubmitGeneration;
 use App\Models\Generation;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Queue;
 use Inertia\Testing\AssertableInertia as Assert;
 
 beforeEach(function () {
+    Queue::fake();
     Http::preventStrayRequests();
     Http::fake(['*/pricing' => Http::response([
         'rates' => ['input_text_tokens' => '5.00', 'input_image_tokens' => '10.00', 'output_tokens' => '40.00', 'reasoning_tokens' => '12.50'],
@@ -41,6 +44,7 @@ it('shows pricing and saves a pending generation with server calculated estimate
         ->and($generation->est_cost_max_nanos)->toBe(373875000)
         ->and($generation->est_charge_max_nanos)->toBe(467343750)
         ->and($generation->rates)->toBeNull();
+    Queue::assertPushed(SubmitGeneration::class, fn ($job) => $job->generationId === $generation->id && $job->afterCommit);
     Http::assertSentCount(1);
 });
 

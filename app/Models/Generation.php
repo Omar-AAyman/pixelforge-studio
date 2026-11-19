@@ -6,6 +6,7 @@ use App\Enums\GenerationStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/** @property GenerationStatus $status */
 class Generation extends Model
 {
     protected $fillable = [

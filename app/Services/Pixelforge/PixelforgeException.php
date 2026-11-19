@@ -39,6 +39,6 @@ class PixelforgeException extends RuntimeException
     public function isRetryable(): bool
     {
         return in_array($this->errorCode, self::RETRYABLE_CODES, true)
-            || ($this->status >= 500 && $this->errorCode === null);
+            || $this->status >= 500;
     }
 }
