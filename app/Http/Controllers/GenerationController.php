@@ -48,7 +48,7 @@ class GenerationController extends Controller
     public function index(Request $request): Response
     {
         return Inertia::render('Generations/Index', [
-            'generations' => Generation::where('user_id', $request->user()->id)->latest()->get(['ulid', 'prompt', 'status', 'est_charge_min_nanos', 'est_charge_max_nanos', 'error_message']),
+            'generations' => Generation::where('user_id', $request->user()->id)->latest()->get(['ulid', 'prompt', 'status', 'est_charge_min_nanos', 'est_charge_max_nanos', 'charge_nanos', 'image_url', 'image_url_expires_at', 'error_message']),
         ]);
     }
 }
