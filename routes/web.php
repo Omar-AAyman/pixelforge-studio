@@ -1,7 +1,11 @@
 <?php
 
 use App\Http\Controllers\GenerationController;
+use App\Http\Controllers\PixelforgeWebhookController;
+use App\Http\Middleware\VerifyPixelforgeSignature;
 use Illuminate\Support\Facades\Route;
+
+Route::post('webhooks/pixelforge', PixelforgeWebhookController::class)->middleware(VerifyPixelforgeSignature::class);
 
 Route::inertia('/', 'Welcome')->name('home');
 
