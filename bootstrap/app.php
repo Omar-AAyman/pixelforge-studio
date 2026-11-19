@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->trustProxies(at: '*'); // behind ngrok / Laravel Cloud load balancer, so HTTPS URLs are generated correctly
         $middleware->validateCsrfTokens(except: ['webhooks/pixelforge']);
 
         $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
