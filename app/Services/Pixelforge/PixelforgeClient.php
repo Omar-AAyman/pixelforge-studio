@@ -15,27 +15,38 @@ class PixelforgeClient
         private readonly int $timeoutSeconds = 15,
     ) {}
 
+    /** @return array<string, mixed> */
     public function pricing(): array
     {
         return Cache::remember('pixelforge.pricing', now()->addMinutes(10), fn () => $this->decode(Http::baseUrl($this->baseUrl)->acceptJson()->connectTimeout(5)->timeout($this->timeoutSeconds)->get('/pricing'))
         );
     }
 
+    /**
+     * @param  array<string, mixed>  $params
+     * @return array<string, mixed>
+     */
     public function createGeneration(array $params, string $idempotencyKey): array
     {
         return $this->decode($this->request()->withHeaders(['Idempotency-Key' => $idempotencyKey])->post('/generations', $params));
     }
 
+    /** @return array<string, mixed> */
     public function getGeneration(string $pixelforgeId): array
     {
         return $this->decode($this->request()->get('/generations/'.rawurlencode($pixelforgeId)));
     }
 
+    /**
+     * @param  array<string, mixed>  $query
+     * @return array<string, mixed>
+     */
     public function listGenerations(array $query = []): array
     {
         return $this->decode($this->request()->get('/generations', $query));
     }
 
+    /** @return array<string, mixed> */
     public function usage(?string $startDate = null, ?string $endDate = null): array
     {
         return $this->decode($this->request()->get('/usage', array_filter([
@@ -50,6 +61,7 @@ class PixelforgeClient
             ->connectTimeout(5)->timeout($this->timeoutSeconds);
     }
 
+    /** @return array<string, mixed> */
     private function decode(Response $response): array
     {
         if ($response->successful()) {

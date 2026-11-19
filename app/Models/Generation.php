@@ -30,11 +30,13 @@ class Generation extends Model
         ];
     }
 
+    /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /** @return array<string, mixed> */
     public function toPixelforgeParams(): array
     {
         return [

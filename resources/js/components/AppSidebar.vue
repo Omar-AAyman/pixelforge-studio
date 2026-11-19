@@ -18,6 +18,8 @@ import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
+    { title: 'Generate', href: '/generations/create', icon: LayoutGrid },
+    { title: 'History', href: '/generations', icon: LayoutGrid },
     {
         title: 'Dashboard',
         href: dashboard(),

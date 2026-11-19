@@ -25,7 +25,11 @@ class PixelforgeCheck extends Command
         }
 
         $this->info('Rates (USD per 1M tokens):');
-        $this->table(['Token type', 'Rate'], collect($pricing['rates'])->map(fn (string $rate, string $type) => [$type, $rate])->values()->all());
+        $rates = [];
+        foreach ($pricing['rates'] as $type => $rate) {
+            $rates[] = [$type, $rate];
+        }
+        $this->table(['Token type', 'Rate'], $rates);
         $this->info(sprintf('Usage %s → %s: %d billed generations, provider cost $%s',
             $usage['start_date'], $usage['end_date'], $usage['total']['generations'], $usage['total']['cost_usd']));
 

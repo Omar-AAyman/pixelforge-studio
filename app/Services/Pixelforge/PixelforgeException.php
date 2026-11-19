@@ -9,6 +9,7 @@ class PixelforgeException extends RuntimeException
 {
     private const RETRYABLE_CODES = ['rate_limit_exceeded', 'concurrency_limit_exceeded', 'overloaded'];
 
+    /** @param  array<string, mixed>  $errors */
     public function __construct(
         string $message,
         public readonly int $status,

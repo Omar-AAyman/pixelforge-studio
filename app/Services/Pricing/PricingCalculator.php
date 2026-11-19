@@ -8,7 +8,12 @@ class PricingCalculator
 {
     private const TOKEN_TYPES = ['input_text_tokens', 'input_image_tokens', 'output_tokens', 'reasoning_tokens'];
 
-    /** Calculate from the rates supplied with the generation, not current pricing. */
+    /**
+     * Calculate from the rates supplied with the generation, not current pricing.
+     *
+     * @param  array<string, mixed>  $usage
+     * @param  array<string, mixed>  $rates
+     */
     public function cost(array $usage, array $rates): int
     {
         $cost = 0;
@@ -24,7 +29,12 @@ class PricingCalculator
         return $cost;
     }
 
-    /** Return provider and user charge bounds in nanodollars. */
+    /**
+     * Return provider and user charge bounds in nanodollars.
+     *
+     * @param  array<string, mixed>  $pricing
+     * @return array<string, int>
+     */
     public function estimate(string $prompt, string $size, string $quality, int $referenceCount, array $pricing, int $markupPercent = 25): array
     {
         $tokens = $pricing['tokens'];
