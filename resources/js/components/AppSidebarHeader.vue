@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Link, usePage } from '@inertiajs/vue3';
+import { formatNanos } from '@/lib/pricing';
 import Breadcrumbs from '@/components/Breadcrumbs.vue';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import type { BreadcrumbItem } from '@/types';
@@ -23,5 +25,19 @@ withDefaults(
                 <Breadcrumbs :breadcrumbs="breadcrumbs" />
             </template>
         </div>
+        <Link
+            v-if="usePage().props.credits"
+            href="/credits"
+            class="ml-auto text-sm underline"
+        >
+            Available:
+            {{
+                formatNanos(
+                    (usePage().props.credits as { available: number })
+                        .available,
+                )
+            }}
+            · Buy credits
+        </Link>
     </header>
 </template>

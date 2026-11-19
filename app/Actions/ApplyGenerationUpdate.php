@@ -4,6 +4,7 @@ namespace App\Actions;
 
 use App\Enums\GenerationStatus;
 use App\Models\Generation;
+use App\Models\User;
 use App\Services\Pricing\Money;
 use App\Services\Pricing\PricingCalculator;
 use Illuminate\Support\Facades\DB;
@@ -14,6 +15,7 @@ class ApplyGenerationUpdate
     public function apply(Generation $generation, array $remote): void
     {
         DB::transaction(function () use ($generation, $remote) {
+            User::whereKey($generation->user_id)->lockForUpdate()->firstOrFail();
             $generation = Generation::whereKey($generation->id)->lockForUpdate()->firstOrFail();
             $status = GenerationStatus::from($remote['status']);
             $unconfirmed = $generation->status === GenerationStatus::Failed && $generation->pixelforge_id === null;
@@ -53,6 +55,18 @@ class ApplyGenerationUpdate
             }
 
             $generation->save();
+
+            if ($status === GenerationStatus::Succeeded) {
+                DB::table('credit_transactions')->insert([
+                    'user_id' => $generation->user_id,
+                    'generation_id' => $generation->id,
+                    'type' => 'generation_charge',
+                    'amount_nanos' => -$generation->charge_nanos,
+                    'description' => 'Image generation',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
         });
     }
 }

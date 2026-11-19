@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\Credits\Balance;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -41,6 +42,7 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'credits' => fn () => $request->user() ? app(Balance::class)->forUser($request->user()->id) : null,
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }

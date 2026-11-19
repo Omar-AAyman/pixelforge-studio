@@ -6,11 +6,15 @@ use App\Enums\GenerationStatus;
 use App\Http\Requests\StoreGenerationRequest;
 use App\Jobs\SubmitGeneration;
 use App\Models\Generation;
+use App\Models\User;
+use App\Services\Credits\Balance;
 use App\Services\Pixelforge\PixelforgeClient;
 use App\Services\Pricing\PricingCalculator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -29,16 +33,23 @@ class GenerationController extends Controller
         $data = $request->validated();
         $estimate = $calculator->estimate($data['prompt'], $data['size'], $data['quality'], count($data['reference_images']), $client->pricing(), (int) config('services.pixelforge.markup_percent'));
 
-        $generation = Generation::create([
-            ...$data,
-            'ulid' => (string) Str::ulid(),
-            'user_id' => $request->user()->id,
-            'status' => GenerationStatus::Pending,
-            'est_cost_min_nanos' => $estimate['cost_min_nanos'],
-            'est_cost_max_nanos' => $estimate['cost_max_nanos'],
-            'est_charge_min_nanos' => $estimate['charge_min_nanos'],
-            'est_charge_max_nanos' => $estimate['charge_max_nanos'],
-        ]);
+        $generation = DB::transaction(function () use ($request, $data, $estimate) {
+            User::whereKey($request->user()->id)->lockForUpdate()->firstOrFail();
+            if (app(Balance::class)->forUser($request->user()->id)['available'] < $estimate['charge_max_nanos']) {
+                throw ValidationException::withMessages(['balance' => 'Not enough available credits for the maximum estimate. Buy credits to continue.']);
+            }
+
+            return Generation::create([
+                ...$data,
+                'ulid' => (string) Str::ulid(),
+                'user_id' => $request->user()->id,
+                'status' => GenerationStatus::Pending,
+                'est_cost_min_nanos' => $estimate['cost_min_nanos'],
+                'est_cost_max_nanos' => $estimate['cost_max_nanos'],
+                'est_charge_min_nanos' => $estimate['charge_min_nanos'],
+                'est_charge_max_nanos' => $estimate['charge_max_nanos'],
+            ]);
+        });
 
         SubmitGeneration::dispatch($generation->id)->afterCommit();
 

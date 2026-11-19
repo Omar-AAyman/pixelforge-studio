@@ -57,5 +57,6 @@ export function estimate(
 }
 
 export function formatNanos(value: number): string {
+    if (value < 0) return `-${formatNanos(-value)}`;
     return `$${Math.floor(value / 1_000_000_000)}.${String(value % 1_000_000_000).padStart(9, '0')}`;
 }

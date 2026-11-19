@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import InputError from '@/components/InputError.vue';
 import { estimate, formatNanos, type Pricing } from '@/lib/pricing';
@@ -119,6 +119,7 @@ const price = computed(() =>
                     generations are free.
                 </p>
             </div>
+            <InputError :message="usePage().props.errors.balance" />
             <button
                 type="submit"
                 :disabled="form.processing"

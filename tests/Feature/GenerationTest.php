@@ -28,6 +28,7 @@ it('requires authentication for the generation pages and submission', function (
 
 it('shows pricing and saves a pending generation with server calculated estimates', function () {
     $user = User::factory()->create();
+    $this->actingAs($user)->post('/credits', ['dollars' => 5]);
     $this->actingAs($user)->get('/generations/create')->assertOk()->assertInertia(fn (Assert $page) => $page
         ->component('Generations/Create')->where('pricing.rates.output_tokens', '40.00')->where('markupPercent', 25));
 
@@ -66,7 +67,29 @@ it('validates input before saving', function (array $changes, string $error) {
 it('only shows the signed-in user their history', function () {
     $owner = User::factory()->create();
     $other = User::factory()->create();
+    $this->actingAs($owner)->post('/credits', ['dollars' => 5]);
     $this->actingAs($owner)->post('/generations', ['prompt' => 'private', 'size' => '1536x1024', 'quality' => 'high', 'reference_images' => []]);
     $this->actingAs($other)->get('/generations')->assertInertia(fn (Assert $page) => $page->component('Generations/Index')->has('generations', 0));
     $this->actingAs($owner)->get('/generations')->assertInertia(fn (Assert $page) => $page->has('generations', 1)->where('generations.0.status', 'pending'));
+});
+
+it('requires available credits and reserves the maximum estimate', function () {
+    $user = User::factory()->create();
+    $params = ['prompt' => 'hello', 'size' => '1536x1024', 'quality' => 'high', 'reference_images' => []];
+    $this->actingAs($user)->post('/generations', $params)->assertSessionHasErrors('balance');
+    Queue::assertNothingPushed();
+    $this->post('/credits', ['dollars' => 5])->assertRedirect('/credits');
+    for ($i = 0; $i < 11; $i++) {
+        $this->post('/generations', $params)->assertRedirect('/generations');
+    }
+    $this->post('/generations', $params)->assertSessionHasErrors('balance');
+    expect(Generation::count())->toBe(11);
+});
+
+it('only accepts the offered fake purchases and displays the user ledger', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user)->post('/credits', ['dollars' => 7])->assertSessionHasErrors('dollars');
+    $this->post('/credits', ['dollars' => 10])->assertRedirect('/credits');
+    $this->get('/credits')->assertInertia(fn (Assert $page) => $page->where('credits.balance', 10000000000)->has('transactions', 1));
+    $this->actingAs(User::factory()->create())->get('/credits')->assertInertia(fn (Assert $page) => $page->has('transactions', 0));
 });

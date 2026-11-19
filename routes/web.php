@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CreditController;
 use App\Http\Controllers\GenerationController;
 use App\Http\Controllers\PixelforgeWebhookController;
 use App\Http\Middleware\VerifyPixelforgeSignature;
@@ -10,6 +11,8 @@ Route::post('webhooks/pixelforge', PixelforgeWebhookController::class)->middlewa
 Route::inertia('/', 'Welcome')->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('credits', [CreditController::class, 'index'])->name('credits.index');
+    Route::post('credits', [CreditController::class, 'store'])->name('credits.store');
     Route::inertia('dashboard', 'Dashboard')->name('dashboard');
     Route::get('generations', [GenerationController::class, 'index'])->name('generations.index');
     Route::get('generations/create', [GenerationController::class, 'create'])->name('generations.create');

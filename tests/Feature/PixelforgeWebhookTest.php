@@ -4,6 +4,7 @@ use App\Enums\GenerationStatus;
 use App\Models\Generation;
 use App\Models\User;
 use App\Models\WebhookEvent;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
 
@@ -56,7 +57,9 @@ it('deduplicates events and ignores stale processing after success', function ()
     sendWebhook($event)->assertNoContent();
     sendWebhook(webhookEvent($generation, 'processing', 'evt_2'))->assertNoContent();
     $generation->refresh();
-    expect(WebhookEvent::count())->toBe(2)
+    expect(DB::table('credit_transactions')->where('generation_id', $generation->id)->count())->toBe(1)
+        ->and((int) DB::table('credit_transactions')->where('generation_id', $generation->id)->value('amount_nanos'))->toBe(-34296875)
+        ->and(WebhookEvent::count())->toBe(2)
         ->and($generation->status)->toBe(GenerationStatus::Succeeded)
         ->and($generation->provider_cost_nanos)->toBe(27437500)
         ->and($generation->charge_nanos)->toBe(34296875)
