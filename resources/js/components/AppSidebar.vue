@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import { BookOpen, FolderGit2, LayoutGrid } from '@lucide/vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
@@ -15,17 +15,22 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import { computed } from 'vue';
 import type { NavItem } from '@/types';
 
-const mainNavItems: NavItem[] = [
+const page = usePage();
+const mainNavItems = computed<NavItem[]>(() => [
     { title: 'Generate', href: '/generations/create', icon: LayoutGrid },
     { title: 'History', href: '/generations', icon: LayoutGrid },
+    ...(page.props.auth.user.is_admin
+        ? [{ title: 'Admin report', href: '/admin/report', icon: LayoutGrid }]
+        : []),
     {
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
     },
-];
+]);
 
 const footerNavItems: NavItem[] = [
     {

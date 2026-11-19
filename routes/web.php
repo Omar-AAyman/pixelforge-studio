@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminReportController;
 use App\Http\Controllers\CreditController;
 use App\Http\Controllers\GenerationController;
 use App\Http\Controllers\PixelforgeWebhookController;
@@ -11,6 +12,7 @@ Route::post('webhooks/pixelforge', PixelforgeWebhookController::class)->middlewa
 Route::inertia('/', 'Welcome')->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('admin/report', AdminReportController::class)->name('admin.report');
     Route::get('credits', [CreditController::class, 'index'])->name('credits.index');
     Route::post('credits', [CreditController::class, 'store'])->name('credits.store');
     Route::inertia('dashboard', 'Dashboard')->name('dashboard');
