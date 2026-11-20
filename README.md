@@ -21,7 +21,7 @@ Open the local URL, register, and use **Credits** to add a fake balance before g
 
 Set `PIXELFORGE_BASE_URL` to `https://pixelforge.promptedit.dev/v1`, `PIXELFORGE_API_KEY` to your **local** key, `PIXELFORGE_WEBHOOK_SECRET` to that key's signing secret, and `PIXELFORGE_MARKUP_PERCENT` to `25`. Keep `.env` private. Use a different key and secret in each environment: usage and webhook configuration belong to the key. `php artisan pixelforge:check` checks pricing and authenticated usage.
 
-For local webhooks, expose the app through a public HTTPS tunnel and configure the exact URL `https://<your-host>/webhooks/pixelforge` in the Pixelforge dashboard. Set the matching signing secret in `.env` and send a dashboard ping. The endpoint must be reachable without authentication, CSRF protection or redirects. Deployments also need a queue worker, the Laravel scheduler, database migrations, and their own key and webhook settings.
+For local webhooks, expose the app through a public HTTPS tunnel and configure the exact URL `https://<your-host>/webhooks/pixelforge` in the Pixelforge dashboard. Set the matching signing secret in `.env` and send a dashboard ping. The endpoint must be reachable without authentication, CSRF protection or redirects. See [Deployment](#deployment) for the production host, worker and webhook setup.
 
 ## Pricing and credits
 
@@ -54,6 +54,30 @@ composer ci:check
 
 Tests use SQLite in memory and fake Pixelforge HTTP responses; they do not need a provider key or network access. CI uses SQLite as well. SQLite serializes writes and does not provide MySQL's row-level `lockForUpdate` behavior, so concurrency should also be exercised on the deployment database. `composer ci:check` includes formatting, static analysis, frontend checks and the test suite.
 
+## Deployment
+
+The app is live at [https://pixelforge.alwaysdata.net](https://pixelforge.alwaysdata.net) on Alwaysdata's free plan.
+
+The application lives in `/home/pixelforge/app`. The site document root is `public/`, and the site idle time is set to 0 so the process does not sleep. Production uses PHP 8.4 and SQLite at `database/database.sqlite`.
+
+The free plan does not include supervised services, so an every-minute cron job runs:
+
+```sh
+cd /home/pixelforge/app && php artisan schedule:run && php artisan queue:work --stop-when-empty --max-time=50
+```
+
+That drives both the Laravel scheduler (`pixelforge:reconcile`) and the database queue.
+
+The account is limited to 256 MB of RAM. `composer install --no-dev --optimize-autoloader` runs on the server. `npm ci` and the Vite production build do not; assets are built elsewhere and `public/build` is uploaded.
+
+Production uses `APP_ENV=production`, `APP_DEBUG=false`, and `APP_URL=https://pixelforge.alwaysdata.net`. The production Pixelforge API key and webhook signing secret belong only in the server `.env`. The production key's webhook URL is `https://pixelforge.alwaysdata.net/webhooks/pixelforge`.
+
+A reviewer demo account exists on the deployment. Its credentials are shared in the application form, not in this repository.
+
+SQLite on this host serializes writes. Concurrent webhook deliveries and queue work can occasionally hit a "database is locked" error; retried jobs have completed successfully.
+
 ## Before submitting
 
-The repository is public, but deployment, live webhook delivery, production generation and production usage reconciliation have not been verified here. Deploy the app, configure the production key and webhook, worker and scheduler, run migrations, and leave a few successful `[succeed]` generations. Verify the dashboard deliveries and admin usage totals, then submit the public repository URL, deployed app URL and Pixelforge account email through the assessment form.
+The public repository and the deployed app at https://pixelforge.alwaysdata.net have been verified: live webhooks are signature-checked and delivered, production generations (including `[succeed]`, `[fail]` and `[duplicate]`) reach the right final states, and provider costs for 2026-11-20 UTC matched `GET /v1/usage` for the production key exactly, including on the admin report.
+
+Submit the public repository URL, the deployed app URL, the Pixelforge account email, and the demo account credentials through the assessment form.
