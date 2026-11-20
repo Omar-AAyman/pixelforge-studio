@@ -60,3 +60,13 @@ it('rejects date ranges longer than the provider limit', function () {
     $this->actingAs($admin)->get('/admin/report?start_date=2026-01-01&end_date=2026-04-03')->assertSessionHasErrors('end_date');
     Http::assertNothingSent();
 });
+
+it('defaults to the last 7 UTC days ending today', function () {
+    $this->travelTo(now('UTC')->setDate(2026, 11, 20)->setTime(21, 0));
+    Http::fake(['*/usage*' => Http::response(['data' => []])]);
+    $admin = User::factory()->create(['is_admin' => true]);
+    $this->actingAs($admin)->get('/admin/report')
+        ->assertOk()->assertInertia(fn (Assert $page) => $page
+        ->where('startDate', '2026-11-14')->where('endDate', '2026-11-20')->has('days', 7));
+    Http::assertSent(fn ($request) => str_contains($request->url(), 'start_date=2026-11-14') && str_contains($request->url(), 'end_date=2026-11-20'));
+});
