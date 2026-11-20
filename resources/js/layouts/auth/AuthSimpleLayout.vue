@@ -20,14 +20,14 @@ defineProps<{
                         :href="home()"
                         class="flex flex-col items-center gap-2 font-medium"
                     >
-                        <div
-                            class="mb-1 flex h-9 w-9 items-center justify-center rounded-md"
+                        <span
+                            class="flex size-10 items-center justify-center rounded-lg bg-primary text-primary-foreground"
                         >
-                            <AppLogoIcon
-                                class="size-9 fill-current text-[var(--foreground)] dark:text-white"
-                            />
-                        </div>
-                        <span class="sr-only">{{ title }}</span>
+                            <AppLogoIcon class="size-6" />
+                        </span>
+                        <span class="text-sm font-semibold">
+                            Pixelforge Studio
+                        </span>
                     </Link>
                     <div class="space-y-2 text-center">
                         <h1 class="text-xl font-medium">{{ title }}</h1>

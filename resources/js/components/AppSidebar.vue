@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, FolderGit2, LayoutGrid } from '@lucide/vue';
+import {
+    BarChart3,
+    BookOpen,
+    FolderGit2,
+    Images,
+    LayoutDashboard,
+    Sparkles,
+    Wallet,
+} from '@lucide/vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -20,27 +28,28 @@ import type { NavItem } from '@/types';
 
 const page = usePage();
 const mainNavItems = computed<NavItem[]>(() => [
-    { title: 'Generate', href: '/generations/create', icon: LayoutGrid },
-    { title: 'History', href: '/generations', icon: LayoutGrid },
-    ...(page.props.auth.user.is_admin
-        ? [{ title: 'Admin report', href: '/admin/report', icon: LayoutGrid }]
-        : []),
     {
         title: 'Dashboard',
         href: dashboard(),
-        icon: LayoutGrid,
+        icon: LayoutDashboard,
     },
+    { title: 'Generate', href: '/generations/create', icon: Sparkles },
+    { title: 'History', href: '/generations', icon: Images },
+    { title: 'Credits', href: '/credits', icon: Wallet },
+    ...(page.props.auth.user.is_admin
+        ? [{ title: 'Admin report', href: '/admin/report', icon: BarChart3 }]
+        : []),
 ]);
 
 const footerNavItems: NavItem[] = [
     {
         title: 'Repository',
-        href: 'https://github.com/laravel/vue-starter-kit',
+        href: 'https://github.com/Omar-AAyman/pixelforge-studio',
         icon: FolderGit2,
     },
     {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#vue',
+        title: 'API docs',
+        href: 'https://pixelforge.promptedit.dev/docs',
         icon: BookOpen,
     },
 ];

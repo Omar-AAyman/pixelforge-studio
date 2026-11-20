@@ -1,6 +1,15 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, Menu, Search } from '@lucide/vue';
+import {
+    BookOpen,
+    Folder,
+    Images,
+    LayoutGrid,
+    Menu,
+    Search,
+    Sparkles,
+    Wallet,
+} from '@lucide/vue';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
@@ -59,17 +68,32 @@ const mainNavItems: NavItem[] = [
         href: dashboard(),
         icon: LayoutGrid,
     },
+    {
+        title: 'Generate',
+        href: '/generations/create',
+        icon: Sparkles,
+    },
+    {
+        title: 'History',
+        href: '/generations',
+        icon: Images,
+    },
+    {
+        title: 'Credits',
+        href: '/credits',
+        icon: Wallet,
+    },
 ];
 
 const rightNavItems: NavItem[] = [
     {
         title: 'Repository',
-        href: 'https://github.com/laravel/vue-starter-kit',
+        href: 'https://github.com/Omar-AAyman/pixelforge-studio',
         icon: Folder,
     },
     {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#vue',
+        title: 'API docs',
+        href: 'https://pixelforge.promptedit.dev/docs',
         icon: BookOpen,
     },
 ];
