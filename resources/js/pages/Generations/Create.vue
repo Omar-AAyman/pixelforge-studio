@@ -11,7 +11,6 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { estimate, formatNanos, type Pricing } from '@/lib/pricing';
@@ -33,10 +32,7 @@ const price = computed(() =>
         props.markupPercent,
     ),
 );
-const promptLength = computed(
-    // eslint-disable-next-line typescript/no-misused-spread
-    () => [...form.prompt].length,
-);
+const promptLength = computed(() => Array.from(form.prompt).length);
 
 defineOptions({
     layout: {
@@ -44,7 +40,8 @@ defineOptions({
     },
 });
 
-const selectClass =
+// Shared look for the native selects and URL inputs (matches the UI kit's Input).
+const fieldClass =
     'border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 w-full rounded-md border bg-background px-3 text-sm shadow-xs outline-none focus-visible:ring-[3px] dark:bg-input/30';
 </script>
 
@@ -96,7 +93,7 @@ const selectClass =
                         <select
                             id="size"
                             v-model="form.size"
-                            :class="selectClass"
+                            :class="fieldClass"
                         >
                             <option>1024x1024</option>
                             <option>1536x1024</option>
@@ -109,7 +106,7 @@ const selectClass =
                         <select
                             id="quality"
                             v-model="form.quality"
-                            :class="selectClass"
+                            :class="fieldClass"
                         >
                             <option value="low">Low</option>
                             <option value="medium">Medium</option>
@@ -126,12 +123,13 @@ const selectClass =
                         class="space-y-1"
                     >
                         <div class="flex gap-2">
-                            <Input
+                            <input
                                 v-model="form.reference_images[index]"
                                 :aria-label="`Reference image URL ${index + 1}`"
                                 type="url"
                                 required
                                 placeholder="https://example.com/image.png"
+                                :class="fieldClass"
                             />
                             <Button
                                 type="button"
