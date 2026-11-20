@@ -4,9 +4,22 @@ import { ImageIcon, ShieldCheck, Sparkles } from '@lucide/vue';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { formatNanos } from '@/lib/pricing';
 import { dashboard, login, register } from '@/routes';
 
 const user = usePage().props.auth.user;
+
+// A real generation from the live app (gen_01M7X8SQ4QS0DF77HNEQJCTCT3).
+// The image is saved in public/images because Pixelforge's URLs expire.
+const sample = {
+    image: '/images/landing-sample.png',
+    prompt: '[succeed] Quiet harbor lanterns, cheap demo 4',
+    size: '1024×1024',
+    quality: 'low',
+    estMinNanos: 14_062_500,
+    estMaxNanos: 21_900_000,
+    chargeNanos: 14_831_250,
+};
 
 const features = [
     {
@@ -93,48 +106,59 @@ const features = [
                     </div>
                 </div>
 
-                <!-- A static preview of the generate screen, for illustration only. -->
-                <div
-                    class="rounded-2xl border bg-card p-5 shadow-sm"
-                    aria-hidden="true"
+                <!-- A real generation from the live app, shown as a preview. -->
+                <figure
+                    class="mx-auto w-full max-w-md rounded-2xl border bg-card p-5 shadow-sm lg:mr-0"
                 >
-                    <div
-                        class="aspect-[4/3] rounded-xl bg-gradient-to-br from-violet-500 via-fuchsia-500 to-amber-400"
+                    <img
+                        :src="sample.image"
+                        :alt="sample.prompt"
+                        width="1024"
+                        height="1024"
+                        class="aspect-square w-full rounded-xl object-cover"
                     />
-                    <div class="mt-4 flex items-start justify-between gap-4">
-                        <div class="min-w-0">
-                            <p class="truncate text-sm font-medium">
-                                A lighthouse on a cliff at dawn, oil painting
-                            </p>
-                            <p class="mt-1 text-xs text-muted-foreground">
-                                1024×1024 · medium quality
-                            </p>
-                        </div>
-                        <Badge
-                            class="border-transparent bg-emerald-600/15 text-emerald-700 dark:text-emerald-400"
+                    <figcaption>
+                        <div
+                            class="mt-4 flex items-start justify-between gap-4"
                         >
-                            Succeeded
-                        </Badge>
-                    </div>
-                    <div
-                        class="mt-4 grid grid-cols-2 gap-3 rounded-lg bg-muted/60 p-3 text-xs"
-                    >
-                        <div>
-                            <p class="text-muted-foreground">Estimated</p>
-                            <p class="mt-0.5 font-mono tabular-nums">
-                                $0.35 – $0.46
-                            </p>
-                        </div>
-                        <div>
-                            <p class="text-muted-foreground">Charged</p>
-                            <p
-                                class="mt-0.5 font-mono font-medium tabular-nums"
+                            <div class="min-w-0">
+                                <p class="truncate text-sm font-medium">
+                                    {{ sample.prompt }}
+                                </p>
+                                <p class="mt-1 text-xs text-muted-foreground">
+                                    {{ sample.size }} ·
+                                    {{ sample.quality }} quality
+                                </p>
+                            </div>
+                            <Badge
+                                class="border-transparent bg-emerald-600/15 text-emerald-700 dark:text-emerald-400"
                             >
-                                $0.38
-                            </p>
+                                Succeeded
+                            </Badge>
                         </div>
-                    </div>
-                </div>
+                        <div
+                            class="mt-4 flex flex-wrap justify-between gap-3 rounded-lg bg-muted/60 p-3 text-xs"
+                        >
+                            <div>
+                                <p class="text-muted-foreground">Estimated</p>
+                                <p
+                                    class="mt-0.5 font-mono whitespace-nowrap tabular-nums"
+                                >
+                                    {{ formatNanos(sample.estMinNanos) }} –
+                                    {{ formatNanos(sample.estMaxNanos) }}
+                                </p>
+                            </div>
+                            <div>
+                                <p class="text-muted-foreground">Charged</p>
+                                <p
+                                    class="mt-0.5 font-mono font-medium tabular-nums"
+                                >
+                                    {{ formatNanos(sample.chargeNanos) }}
+                                </p>
+                            </div>
+                        </div>
+                    </figcaption>
+                </figure>
             </section>
 
             <section class="mt-20 grid gap-4 sm:grid-cols-3">
