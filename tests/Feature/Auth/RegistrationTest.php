@@ -36,4 +36,17 @@ class RegistrationTest extends TestCase
         $this->assertAuthenticated();
         $response->assertRedirect(route('dashboard', absolute: false));
     }
+
+    public function test_new_users_can_use_the_app_without_verifying_their_email()
+    {
+        $this->post(route('register.store'), [
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+
+        $this->get(route('dashboard'))->assertOk();
+        $this->get(route('credits.index'))->assertOk();
+    }
 }
