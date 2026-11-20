@@ -38,8 +38,10 @@ return [
             'database' => env('DB_DATABASE', database_path('database.sqlite')),
             'prefix' => '',
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
-            'busy_timeout' => null,
-            'journal_mode' => null,
+            // Set on the server (DB_BUSY_TIMEOUT=5000, DB_JOURNAL_MODE=wal) so the web app and
+            // the queue cron can use the same SQLite file without "database is locked" errors.
+            'busy_timeout' => env('DB_BUSY_TIMEOUT'),
+            'journal_mode' => env('DB_JOURNAL_MODE'),
             'synchronous' => null,
             'transaction_mode' => 'DEFERRED',
         ],

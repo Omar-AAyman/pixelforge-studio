@@ -43,7 +43,7 @@ Temporary submission errors and connection failures retry up to eight attempts w
 
 ## Admin report
 
-Set `is_admin` to true for a trusted user in the database to access `/admin/report`. The server checks this flag. The report groups successful generations by the provider's UTC completion day, showing charges, costs and profit by day and user. It compares exact nine-decimal local daily costs with `/v1/usage` for the configured key, over at most 92 inclusive days. A missing or unavailable usage response is not a match. Reconciliation requires the database to contain all generations billed to that key.
+Set `is_admin` to true for a trusted user in the database to access `/admin/report`. The server checks this flag. The report groups successful generations by the provider's UTC completion day, showing charges, costs and profit by day and user. It compares exact nine-decimal local daily costs with `/v1/usage` for the configured key, over at most 92 inclusive days. Without a chosen range it shows the last 7 UTC days, ending today. A missing or unavailable usage response is not a match. Reconciliation requires the database to contain all generations billed to that key.
 
 ## Tests and checks
 
@@ -74,10 +74,12 @@ Production uses `APP_ENV=production`, `APP_DEBUG=false`, and `APP_URL=https://pi
 
 A reviewer demo account exists on the deployment. Its credentials are shared in the application form, not in this repository.
 
-SQLite on this host serializes writes. Concurrent webhook deliveries and queue work can occasionally hit a "database is locked" error; retried jobs have completed successfully.
+SQLite on this host serializes writes. To stop concurrent webhook deliveries and queue work from failing with "database is locked", the server `.env` sets `DB_BUSY_TIMEOUT=5000` (wait up to 5 seconds for a lock) and `DB_JOURNAL_MODE=wal` (readers do not block the writer). `config/database.php` reads both; they are unset locally and in CI.
 
 ## Before submitting
 
-The public repository and the deployed app at https://pixelforge.alwaysdata.net have been verified: live webhooks are signature-checked and delivered, production generations (including `[succeed]`, `[fail]` and `[duplicate]`) reach the right final states, and provider costs for 2026-11-20 UTC matched `GET /v1/usage` for the production key exactly, including on the admin report.
+The public repository and the deployed app at https://pixelforge.alwaysdata.net have been verified: live webhooks are signature-checked and delivered, and production generations (including `[succeed]`, `[fail]` and `[duplicate]`) reach the right final states.
+
+The deployment holds 7 generations, all completed on 2026-11-20 UTC: 6 succeeded (5 around 20:01 UTC and one at 21:01 UTC) and 1 `[fail]` generation that failed and was not charged. Their provider cost totals $0.080615000 and users were charged $0.100768750. `GET /v1/usage` for the production key on 2026-11-20 reports 6 generations at $0.080615000, an exact match, and the admin report shows "Match" for that day.
 
 Submit the public repository URL, the deployed app URL, the Pixelforge account email, and the demo account credentials through the assessment form.
