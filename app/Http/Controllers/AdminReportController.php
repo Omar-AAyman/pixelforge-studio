@@ -24,7 +24,7 @@ class AdminReportController extends Controller
             'end_date' => ['nullable', 'date_format:Y-m-d', 'required_with:start_date', 'after_or_equal:start_date'],
         ]);
         $end = CarbonImmutable::parse($dates['end_date'] ?? now('UTC')->toDateString(), 'UTC')->startOfDay();
-        $start = CarbonImmutable::parse($dates['start_date'] ?? $end->subDays(29)->toDateString(), 'UTC')->startOfDay();
+        $start = CarbonImmutable::parse($dates['start_date'] ?? $end->subDays(6)->toDateString(), 'UTC')->startOfDay();
         if ($start->diffInDays($end) > 91) {
             throw ValidationException::withMessages(['end_date' => 'The date range may cover at most 92 days.']);
         }

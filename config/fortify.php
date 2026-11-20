@@ -162,8 +162,8 @@ return [
 
     'features' => [
         Features::registration(),
-        Features::resetPasswords(),
-        Features::emailVerification(),
+        // No resetPasswords() or emailVerification(): the app has no mail provider,
+        // so those emails could never arrive and users would get stuck.
         Features::twoFactorAuthentication([
             'confirm' => true,
             'confirmPassword' => true,
